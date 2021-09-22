@@ -15,17 +15,17 @@ import (
  */
 // Http request Context
 type Context struct {
-	Writer   http.ResponseWriter
-	Request http.Request
+	Writer  http.ResponseWriter
+	Request *http.Request
 
 	Path       string
 	Method     string
 	StatusCode int
 }
 
-func newConext(writer http.ResponseWriter, request http.Request) *Context {
+func newConext(writer http.ResponseWriter, request *http.Request) *Context {
 	return &Context{
-		Writer:   writer,
+		Writer:  writer,
 		Request: request,
 		Path:    request.URL.Path,
 		Method:  request.Method,
@@ -50,7 +50,7 @@ func (c *Context) SetHeader(key, value string) {
 	c.Writer.Header().Set(key, value)
 }
 
-func (c *Context) String(code int, format string, values ...interface{}){
+func (c *Context) String(code int, format string, values ...interface{}) {
 	c.SetHeader("Content-Type", "text/plain")
 	c.Status(code)
 	c.Writer.Write([]byte(fmt.Sprintf(format, values...)))

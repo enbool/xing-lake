@@ -3,7 +3,6 @@ package main
 import (
 	"fmt"
 	"mvc"
-	"net/http"
 )
 
 /**
@@ -17,17 +16,17 @@ func main()  {
 	engine := mvc.New()
 
 	engine.RegisterGetRequest("/", indexHandler)
-	engine.RegisterPostRequest("/hello", helloHandler)
+	engine.RegisterGetRequest("/hello", helloHandler)
 
 	engine.Run("8888")
 }
 
-func indexHandler(w http.ResponseWriter, req *http.Request) {
-	fmt.Fprintf(w, "url: %q\n", req.URL.Path)
+func indexHandler(c *mvc.Context) {
+	fmt.Fprintf(c.Writer, "url: %q\n", c.Path)
 }
 
-func helloHandler(w http.ResponseWriter, req *http.Request)  {
-	for k, v := range req.Header{
-		fmt.Fprintf(w, "Header[%q] = %q\n", k, v)
+func helloHandler(c *mvc.Context)  {
+	for k, v := range c.Request.Header{
+		fmt.Fprintf(c.Writer, "Header[%q] = %q\n", k, v)
 	}
 }
