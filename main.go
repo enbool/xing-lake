@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"mvc"
+	"net/http"
 )
 
 /**
@@ -17,6 +18,18 @@ func main()  {
 
 	engine.RegisterGetRequest("/", indexHandler)
 	engine.RegisterGetRequest("/hello", helloHandler)
+
+	engine.RegisterGetRequest("/new/", func(c *mvc.Context){
+		c.HTML(http.StatusOK, "<h1>Hello Gee</h1>")
+	})
+
+	engine.RegisterPostRequest("/login", func(c *mvc.Context) {
+		c.JSON(http.StatusOK, mvc.H{
+			"username": c.PostForm("username"),
+			"password": c.PostForm("password"),
+		})
+	})
+
 
 	engine.Run("8888")
 }

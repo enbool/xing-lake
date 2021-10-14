@@ -13,6 +13,9 @@ import (
  * @Author: wumin2
  * @Date:  2021/9/14 19:06
  */
+
+type H map[string]interface{}
+
 // Http request Context
 type Context struct {
 	Writer  http.ResponseWriter
@@ -56,7 +59,7 @@ func (c *Context) String(code int, format string, values ...interface{}) {
 	c.Writer.Write([]byte(fmt.Sprintf(format, values...)))
 }
 
-func (c *Context) Json(code int, obj interface{}) {
+func (c *Context) JSON(code int, obj interface{}) {
 	c.SetHeader("Content-Type", "application/json")
 	c.Status(code)
 	encoder := json.NewEncoder(c.Writer)
