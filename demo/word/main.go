@@ -11,6 +11,13 @@ import (
 	"fmt"
 	"github.com/unidoc/unioffice/common/license"
 	"github.com/unidoc/unioffice/document"
+	"io/fs"
+	"io/ioutil"
+	"path/filepath"
+	"sort"
+	"strconv"
+	"strings"
+	"time"
 )
 
 func init() {
@@ -23,34 +30,98 @@ func init() {
 }
 
 func main() {
-	doc, err := document.Open("input.docx")
+	fmt.Println("Please input the path of the directory you want to process: ")
+	var root = "./input"
+	fmt.Scanln(&root)
+
+	var files []string
+
+	err := filepath.Walk(root, func(path string, info fs.FileInfo, err error) error {
+		if !info.IsDir() {
+			if strings.HasSuffix(path, ".docx") {
+				files = append(files, path)
+			}
+		}
+		return nil
+	})
+
+	if err != nil {
+		panic(err)
+	}
+	var result = ""
+	for _, file := range files {
+		result += file + "\n"
+		result += parseDoc(file) + "\n"
+	}
+	writeTXT(result)
+}
+
+func parseDoc(filename string) string {
+	doc, err := document.Open(filename)
 	if err != nil {
 		panic("open failed")
 	}
 	defer doc.Close()
 
+	var result = ""
 	tables := doc.Tables()
-
-	for _, talbe := range tables{
+	for _, talbe := range tables {
 		rows := talbe.Rows()
-
+		var records = make([]*Record, len(rows)-1)
 		for i, row := range rows {
-			if i == 0{
+			if i == 0 {
 				continue
 			}
-			cells := row.Cells()
-			for _, cell := range cells{
-				fmt.Println(toText(cell.Paragraphs()))
-			}
+			record := row2Record(row)
+			records[i-1] = record
 		}
+		sort.Slice(records, func(i, j int) bool {
+			if percentStr2Float(records[i].Percent) > percentStr2Float(records[j].Percent) {
+				return true
+			}
+			return false
+		})
+		result += fmt.Sprint(records) + "\n"
+	}
+	return result
+}
+
+func writeTXT(s string) {
+	currentTime := time.Now()
+	filename := currentTime.Format("2006-01-02-15.04.05")
+	var outputFilename = "./" + filename + ".txt"
+	err := ioutil.WriteFile(outputFilename, []byte(s), 0644)
+	if err != nil {
+		panic(err)
 	}
 }
 
+func percentStr2Float(source string) float64 {
+	var percent = 0.0
+	if len(source) != 0 {
+		source = strings.TrimSuffix(source, "%")
+		percentTmp, err := strconv.ParseFloat(source, 64)
+		if err != nil {
+			percentTmp = 0.0
+		}
+		percent = percentTmp
+	}
+	return percent
+}
+
+func row2Record(row document.Row) *Record {
+	cells := row.Cells()
+	name := toText(cells[0].Paragraphs())
+	description := toText(cells[1].Paragraphs())
+	percentStr := toText(cells[2].Paragraphs())
+
+	return New(name, description, percentStr)
+}
 func toText(paragraphs []document.Paragraph) string {
 	var text = ""
-	for _, paragraph := range paragraphs{
+	for _, paragraph := range paragraphs {
 		runs := paragraph.Runs()
-		for _, run := range runs{
+		for _, run := range runs {
 			text = text + run.Text()
 		}
 	}
