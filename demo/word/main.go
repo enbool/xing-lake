@@ -30,9 +30,13 @@ func init() {
 }
 
 func main() {
-	fmt.Println("Please input the path of the directory you want to process: ")
+	fmt.Println("请输入要处理的文件夹路径: ")
 	var root = "./input"
 	fmt.Scanln(&root)
+
+	fmt.Println("请输入每个表格截取多少行: ")
+	var limit = 0
+	fmt.Scanln(&limit)
 
 	var files []string
 
@@ -51,12 +55,12 @@ func main() {
 	var result = ""
 	for _, file := range files {
 		result += file + "\n"
-		result += parseDoc(file) + "\n"
+		result += parseDoc(file, limit) + "\n"
 	}
 	writeTXT(result)
 }
 
-func parseDoc(filename string) string {
+func parseDoc(filename string, limit int) string {
 	doc, err := document.Open(filename)
 	if err != nil {
 		panic("open failed")
@@ -81,6 +85,9 @@ func parseDoc(filename string) string {
 			}
 			return false
 		})
+		if limit > 0{
+			records = records[:limit]
+		}
 		result += fmt.Sprint(records) + "\n"
 	}
 	return result
