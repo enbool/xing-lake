@@ -63,8 +63,8 @@ func (g *Group) Get(key string) (ByteView, error) {
 	if key == ""{
 		return ByteView{}, fmt.Errorf("key is null")
 	}
-	if v, ok := g.mainCache.get(key); ok{
-		log.Println(key + "hit")
+ 	if v, ok := g.mainCache.get(key); ok{
+		log.Println(key + " hit")
 		return v, nil
 	}
 	return g.load(key)
