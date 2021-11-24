@@ -4,13 +4,13 @@ use clap::{AppSettings, Parser};
 use ch03::fib;
 use ch03::return_type::pi;
 use anyhow::{anyhow, Result};
-use reqwest::blocking::Client;
+use reqwest::Client;
 
 mod ch03;
 mod httpie;
 
 #[tokio::main]
-async fn main() {
+async fn main() -> Result<()> {
     // scrape::scrape("https://www.rust-lang.org/")
     /*
     let pi = return_type::pi();
@@ -35,7 +35,7 @@ async fn main() {
         SubCommand::Get(ref args) => get(client, args).await?,
         SubCommand::Post(ref args) => post(client, args).await?,
     };
-    OK(result)
+    Ok(result)
 }
 
 //// A native httpie implementation with rust. can you image how easy it is?
@@ -108,5 +108,8 @@ async fn post(client: Client, args: &Post) -> Result<()> {
         body.insert(&pair.k, &pair.v);
     }
 
-    let resp = client.post(&args.url).json(&body).send().await
+    let resp = client.post(&args.url).json(&body).send().await?;
+    println!("{:?}", resp.text().await?);
+
+    Ok(())
 }
