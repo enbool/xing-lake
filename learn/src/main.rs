@@ -4,13 +4,23 @@ use clap::{AppSettings, Parser};
 use ch03::fib;
 use ch03::return_type::pi;
 use anyhow::{anyhow, Result};
+use axum::extract::Path;
+use axum::handler::get;
+use axum::http::StatusCode;
+use axum::Router;
+use percent_encoding::percent_decode_str;
 use reqwest::Client;
+use crate::pb::ImageSpec;
+use serde::Deserialize;
 
 mod ch03;
 mod httpie;
+mod thumbor;
+mod pb;
+
 
 #[tokio::main]
-async fn main() -> Result<()> {
+async fn main() {
     // scrape::scrape("https://www.rust-lang.org/")
     /*
     let pi = return_type::pi();
@@ -27,16 +37,46 @@ async fn main() -> Result<()> {
         let result = fib::fib_loop(6);
         println!("result: {}", result);*/
 
-
-    let opt: Opts = Opts::parse();
+    //  httpie  --start
+    /*let opt: Opts = Opts::parse();
     println!("{:?}", opt);
     let client = Client::new();
     let result = match opt.subCmd {
         SubCommand::Get(ref args) => get(client, args).await?,
         SubCommand::Post(ref args) => post(client, args).await?,
     };
-    Ok(result)
+    Ok(result)*/
+    //  httpie  --end
+    //  thumbor  --start
+    tracing_subscriber::fmt::init();
+
+    let app = Router::new()
+        .route("/image/:spec/:url", get(generate));
+    let addr = "127.0.0.1:3000".parse().unwrap();
+    tracing::debug!("listening on {}", addr);
+    axum::Server::bind(&addr)
+        .serve(app.into_make_service())
+        .await
+        .unwrap();
+
+    //  thumbor  --end
 }
+
+async fn generate(Path(Param { spec, url }): Path<Param>) -> Result<String, StatusCode> {
+    let url = percent_decode_str(&url).decode_utf8_lossy();
+    let spec: ImageSpec = spec
+        .as_str()
+        .try_into()
+        .map_err(|_| StatusCode::BAD_REQUEST)?;
+    Ok(format!("url: {}\n spec: {:#?}", url, spec))
+}
+
+#[derive(Deserialize)]
+struct Param {
+    spec: String,
+    url: String,
+}
+
 
 //// A native httpie implementation with rust. can you image how easy it is?
 #[derive(Parser, Debug)]
@@ -96,11 +136,11 @@ fn parse_url(s: &str) -> Result<String> {
     Ok(s.to_string())
 }
 
-async fn get(client: Client, args: &Get) -> Result<()> {
+/*async fn get(client: Client, args: &Get) -> Result<()> {
     let resp = client.get(&args.url).send().await?;
     println!("{:?}", resp.text().await?);
     Ok(())
-}
+}*/
 
 async fn post(client: Client, args: &Post) -> Result<()> {
     let mut body = HashMap::new();
