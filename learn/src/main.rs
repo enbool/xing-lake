@@ -60,12 +60,33 @@ async fn main() {
         .unwrap();
 */
     //  thumbor  --end
-    let data: Vec<u32> = vec![1, 2, 3, 4];
+  /*  let data: Vec<u32> = vec![1, 2, 3, 4];
     let data1 = &data;
     println!("addr of value: {:p}({:p}), addr of data: {:p}, data1: {:p}", &data, data1, &&data, &data1);
     sum(data1);
     // 堆上数据的地址是什么？
     println!("addr of items: [{:p}, {:p}, {:p}, {:p}]", &data[0], &data[1], &data[2], &data[3]);
+
+   */
+    let rect1 = Rectangle{
+        width: 10,
+        height: 12,
+    };
+
+    print!("rect1 is {:#?}", rect1);
+
+}
+
+#[derive(Debug)]
+struct Rectangle{
+    width: u32,
+    height: u32,
+}
+
+impl Rectangle{
+    fn area(&self) -> u32{
+        self.width * self.height
+    }
 }
 
 fn sum(data: &Vec<u32>) -> u32 {
