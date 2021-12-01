@@ -18,8 +18,9 @@ impl ImageSpec {
 // ImageSpec to base64 string
 impl From<&ImageSpec> for String {
     fn from(image_spec: &ImageSpec) -> Self {
-        let data = image_spec.encode_to_vec();
-        encode_config(data, URL_SAFE_NO_PAD)
+        // let data = image_spec.encode_to_vec();
+        // encode_config(data, URL_SAFE_NO_PAD)
+        "hello".to_string()
     }
 }
 
@@ -29,7 +30,8 @@ impl TryFrom<&str> for ImageSpec {
 
     fn try_from(value: &str) -> Result<Self, Self::Error> {
         let data = decode_config(value, URL_SAFE_NO_PAD)?;
-        Ok(ImageSpec::decode(&data[..])?)
+        // Ok(ImageSpec::decode(&data[..])?)
+        Ok(ImageSpec::new(vec![]))
     }
 }
 
