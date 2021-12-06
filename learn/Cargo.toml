@@ -33,5 +33,8 @@ tower-http = { version = "0.1", features = ["add-extension", "compression-full",
 tracing = "0.1" # 日志追踪
 tracing-subscriber = "0.2" # 日志追踪
 
+
+regex = "1.5"
+
 [build-dependencies]
 prost-build = "0.8" # 编译protobuf
