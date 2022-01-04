@@ -29,4 +29,6 @@ func TestHash(t *testing.T) {
 		"23": "4",
 		"27": "2",
 	}
+
+	for k, v:=
 }
