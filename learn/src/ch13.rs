@@ -61,9 +61,9 @@ pub trait Parse {
     }
 }*/
 
-#[test]
+/*#[test]
 fn parse_test() {
     assert_eq!(u8::parse("123abcc"), 123);
     assert_eq!(u8::parse("1234abcd"), 0);
     assert_eq!(u8::parse("abc", 0));
-}
+}*/
