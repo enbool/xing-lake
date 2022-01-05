@@ -1,5 +1,8 @@
 use std::collections::HashMap;
+use std::io::{BufWriter, Write};
+use std::net::TcpStream;
 use std::str::FromStr;
+use std::thread;
 use clap::{AppSettings, Parser};
 use ch03::fib;
 use ch03::return_type::pi;
@@ -8,84 +11,60 @@ use axum::extract::Path;
 use axum::handler::get;
 use axum::http::StatusCode;
 use axum::Router;
+use lazy_static::lazy_static;
 use percent_encoding::percent_decode_str;
-use reqwest::Client;
+use reqwest::{Client, Url};
+
 use crate::pb::ImageSpec;
 use serde::Deserialize;
+use ch13::BufBuilder;
+use ch14::Developer;
+use crate::ch14::{Buffer, Language};
+use crate::ch15::{Matrix, MyAllocator};
 
 mod ch03;
 mod httpie;
 mod thumbor;
 mod pb;
+mod ch11;
+mod ch13;
+mod ch14;
+mod ch15;
+mod ch16;
+mod ch19;
+mod ch23;
+mod ch24;
+mod ch33;
+mod ch35;
 
 
-#[tokio::main]
-async fn main() {
-    // scrape::scrape("https://www.rust-lang.org/")
-    /*
-    let pi = return_type::pi();
-    let not_pi = return_type::not_pi();
+use std::{mem::size_of_val};
+use std::sync::Mutex;
 
-    let pi2 = {
-        return_type::pi();
-    };
-    println!("pi:{:?}, not_pi:{:?}, pi2:{:?}", pi, not_pi, pi2);
-     */
-
-    // echo::test();
-    /*
-        let result = fib::fib_loop(6);
-        println!("result: {}", result);*/
-
-    //  httpie  --start
-    /*let opt: Opts = Opts::parse();
-    println!("{:?}", opt);
-    let client = Client::new();
-    let result = match opt.subCmd {
-        SubCommand::Get(ref args) => get(client, args).await?,
-        SubCommand::Post(ref args) => post(client, args).await?,
-    };
-    Ok(result)*/
-    //  httpie  --end
-    //  thumbor  --start
-    /*tracing_subscriber::fmt::init();
-
-    let app = Router::new()
-        .route("/image/:spec/:url", get(generate));
-    let addr = "127.0.0.1:3000".parse().unwrap();
-    tracing::debug!("listening on {}", addr);
-    axum::Server::bind(&addr)
-        .serve(app.into_make_service())
-        .await
-        .unwrap();
-*/
-    //  thumbor  --end
-  /*  let data: Vec<u32> = vec![1, 2, 3, 4];
-    let data1 = &data;
-    println!("addr of value: {:p}({:p}), addr of data: {:p}, data1: {:p}", &data, data1, &&data, &data1);
-    sum(data1);
-    // 堆上数据的地址是什么？
-    println!("addr of items: [{:p}, {:p}, {:p}, {:p}]", &data[0], &data[1], &data[2], &data[3]);
-
-   */
-    let rect1 = Rectangle{
-        width: 10,
-        height: 12,
-    };
-
-    print!("rect1 is {:#?}", rect1);
+fn main() {
 
 }
 
+fn new_rectangle(width: u32, height: u32) -> Rectangle {
+    Rectangle::new(width, height)
+}
+
 #[derive(Debug)]
-struct Rectangle{
+struct Rectangle {
     width: u32,
     height: u32,
 }
 
-impl Rectangle{
-    fn area(&self) -> u32{
+impl Rectangle {
+    fn area(&self) -> u32 {
         self.width * self.height
+    }
+
+    fn new(width: u32, height: u32) -> Self {
+        Rectangle {
+            width,
+            height,
+        }
     }
 }
 
@@ -100,7 +79,7 @@ async fn generate(Path(Param { spec, url }): Path<Param>) -> Result<String, Stat
         .as_str()
         .try_into()
         .map_err(|_| StatusCode::BAD_REQUEST)?;
-    Ok(format!("url: {}\n spec: {:#?}", url, spec))
+    Ok(format!("url: {}\n ", url, ))
 }
 
 #[derive(Deserialize)]
