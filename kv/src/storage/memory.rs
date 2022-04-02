@@ -1,6 +1,6 @@
 use dashmap::DashMap;
 use dashmap::mapref::one::Ref;
-use crate::{KvError, Kvpair, Storage, Value};
+use crate::{KvError, Kvpair, Storage, StorageIter, Value};
 
 #[derive(Debug, Clone, Default)]
 pub struct MemTable {
@@ -55,6 +55,12 @@ impl Storage for MemTable {
     }
 
     fn get_iter(&self, table: &str) -> Result<Box<dyn Iterator<Item=Kvpair>>, KvError> {
-        todo!()
+        let table = self.get_or_create(table).clone();
+
+        // let iter = table.into_iter().map(|data| data.into());
+        let mut iter = StorageIter::new(table.into_iter());
+        let tmp = iter.next();
+
+        Ok(Box::new(iter))
     }
 }
