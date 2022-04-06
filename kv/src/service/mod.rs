@@ -1,9 +1,9 @@
 mod command_service;
 
+use crate::command_request::RequestData;
+use crate::{CommandRequest, CommandResponse, KvError, MemTable, Storage};
 use std::sync::Arc;
 use tracing::debug;
-use crate::{CommandRequest, CommandResponse, KvError, MemTable, Storage};
-use crate::command_request::RequestData;
 
 pub trait CommandService {
     fn execute(self, store: &impl Storage) -> CommandResponse;
@@ -34,7 +34,7 @@ impl<Arg> NotifyMut<Arg> for Vec<fn(&mut Arg)> {
     }
 }
 
-struct Service<Store = MemTable> {
+pub struct Service<Store = MemTable> {
     inner: Arc<ServiceInner<Store>>,
 }
 
@@ -48,7 +48,7 @@ impl<Store> Clone for Service<Store> {
     }
 }
 
-struct ServiceInner<Store> {
+pub struct ServiceInner<Store> {
     store: Store,
     on_received: Vec<fn(&CommandRequest)>,
     on_executed: Vec<fn(&CommandResponse)>,
@@ -56,7 +56,7 @@ struct ServiceInner<Store> {
     on_after_send: Vec<fn()>,
 }
 
-impl <Store> ServiceInner<Store> {
+impl<Store> ServiceInner<Store> {
     pub fn new(store: Store) -> Self {
         Self {
             store,
@@ -89,7 +89,7 @@ impl <Store> ServiceInner<Store> {
 impl<Store: Storage> From<ServiceInner<Store>> for Service<Store> {
     fn from(inner: ServiceInner<Store>) -> Self {
         Self {
-            inner: Arc::new(inner)
+            inner: Arc::new(inner),
         }
     }
 }
@@ -97,7 +97,7 @@ impl<Store: Storage> From<ServiceInner<Store>> for Service<Store> {
 impl<Store: Storage> Service<Store> {
     pub fn new(store: Store) -> Self {
         Self {
-            inner: Arc::new(ServiceInner::new(store))
+            inner: Arc::new(ServiceInner::new(store)),
         }
     }
 
@@ -123,13 +123,12 @@ impl<Store: Storage> Service<Store> {
     }
 }
 
-
 #[cfg(test)]
 mod test {
+    use crate::service::{Service, ServiceInner};
+    use crate::{CommandRequest, CommandResponse, MemTable, Value};
     use http::StatusCode;
     use tracing::info;
-    use crate::{CommandRequest, CommandResponse, MemTable, Value};
-    use crate::service::{Service, ServiceInner};
 
     #[test]
     fn event_registration_should_work() {

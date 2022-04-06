@@ -1,41 +1,40 @@
-use http::StatusCode;
-use crate::{CommandRequest, CommandResponse, Hget, Hgetall, Hset, KvError, Kvpair, Storage, Value};
 use crate::command_request::RequestData;
 use crate::service::CommandService;
 use crate::value::Value::Integer;
+use crate::{
+    value, CommandRequest, CommandResponse, Hget, Hgetall, Hset, KvError, Kvpair, Storage, Value,
+};
+use bytes::Bytes;
+use http::StatusCode;
+use sled::{Error, IVec};
+use std::str;
 
 pub mod abi;
 
 impl CommandRequest {
     pub fn new_hget(table: impl Into<String>, key: impl Into<String>) -> Self {
         Self {
-            request_data: Some(RequestData::Hget(
-                Hget {
-                    table: table.into(),
-                    key: key.into(),
-                }
-            ))
+            request_data: Some(RequestData::Hget(Hget {
+                table: table.into(),
+                key: key.into(),
+            })),
         }
     }
 
     pub fn new_hgetall(table: impl Into<String>) -> Self {
-        Self{
-            request_data: Some(RequestData::Hgetall(
-                Hgetall {
-                    table: table.into(),
-                }
-            ))
+        Self {
+            request_data: Some(RequestData::Hgetall(Hgetall {
+                table: table.into(),
+            })),
         }
     }
 
     pub fn new_hset(table: impl Into<String>, key: impl Into<String>, value: Value) -> Self {
         Self {
-            request_data: Some(RequestData::Hset(
-                Hset {
-                    table: table.into(),
-                    pair: Some(Kvpair::new(key, value)),
-                }
-            ))
+            request_data: Some(RequestData::Hset(Hset {
+                table: table.into(),
+                pair: Some(Kvpair::new(key, value)),
+            })),
         }
     }
 }
@@ -55,10 +54,29 @@ impl From<(String, Value)> for Kvpair {
     }
 }
 
+impl From<Result<(IVec, IVec), sled::Error>> for Kvpair {
+    fn from(v: Result<(IVec, IVec), Error>) -> Self {
+        match v {
+            Ok((k, v)) => match v.as_ref().try_into() {
+                Ok(v) => Kvpair::new(ivec_to_key(k.as_ref()), v),
+                Err(_) => Kvpair::default(),
+            },
+            Err(_) => Kvpair::default(),
+        }
+    }
+}
+
+fn ivec_to_key(ivec: &[u8]) -> &str {
+    let s = str::from_utf8(ivec).unwrap();
+    let mut iter = s.split(":");
+    iter.next();
+    iter.next().unwrap()
+}
+
 impl From<String> for Value {
     fn from(s: String) -> Self {
         Self {
-            value: Some(crate::value::Value::String(s))
+            value: Some(crate::value::Value::String(s)),
         }
     }
 }
@@ -66,8 +84,15 @@ impl From<String> for Value {
 impl From<&str> for Value {
     fn from(s: &str) -> Self {
         Self {
-            value: Some(crate::value::Value::String(s.into()))
+            value: Some(crate::value::Value::String(s.into())),
         }
+    }
+}
+
+impl From<&[u8]> for Value {
+    fn from(v: &[u8]) -> Self {
+        let s = str::from_utf8(v).unwrap();
+        s.into()
     }
 }
 
@@ -118,6 +143,19 @@ impl From<KvError> for CommandResponse {
     }
 }
 
+impl<const N: usize> From<&[u8; N]> for Value {
+    fn from(buf: &[u8; N]) -> Self {
+        Bytes::copy_from_slice(&buf[..]).into()
+    }
+}
+
+impl From<Bytes> for Value {
+    fn from(buf: Bytes) -> Self {
+        Self {
+            value: Some(value::Value::Binary(buf)),
+        }
+    }
+}
 
 /*impl CommandService for CommandRequest {
     fn execute(self, store: impl Storage) -> CommandResponse {

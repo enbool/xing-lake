@@ -18,13 +18,18 @@ client <----------->  |   IO  <------------->  SerDe  ------> Dispatcher |  --->
 
  */
 
+mod channel;
+mod client;
+mod error;
+mod network;
 mod pb;
+mod server;
 mod service;
 mod storage;
-mod error;
+mod test;
 
-pub use storage::*;
+pub use error::KvError;
+pub use network::*;
 pub use pb::abi::*;
-pub use error::*;
 pub use service::*;
-
+pub use storage::*;

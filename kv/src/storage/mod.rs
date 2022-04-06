@@ -1,13 +1,20 @@
 use crate::{KvError, Kvpair, Value};
 
 mod memory;
+mod sleddb;
+
 pub use memory::MemTable;
 
 /// 存储抽象
 pub trait Storage: Send + Sync + 'static {
     fn get(&self, table: &str, key: &str) -> Result<Option<Value>, KvError>;
 
-    fn set(&self, table: &str, key: String, value: Value) -> Result<Option<Value>, KvError>;
+    fn set(
+        &self,
+        table: &str,
+        key: impl Into<String>,
+        value: impl Into<Value>,
+    ) -> Result<Option<Value>, KvError>;
 
     fn contains(&self, table: &str, key: &str) -> Result<bool, KvError>;
 
@@ -23,10 +30,8 @@ pub struct StorageIter<T> {
 }
 
 impl<T> StorageIter<T> {
-    pub fn new(data: T) ->Self {
-        Self {
-            data
-        }
+    pub fn new(data: T) -> Self {
+        Self { data }
     }
 }
 
@@ -37,11 +42,10 @@ impl<T> StorageIter<T> {
         }
     }
 }*/
-impl <T> Iterator for StorageIter<T>
+impl<T> Iterator for StorageIter<T>
 where
     T: Iterator,
-    T::Item: Into<Kvpair>
-
+    T::Item: Into<Kvpair>,
 {
     type Item = Kvpair;
 

@@ -10,7 +10,7 @@ impl CommandService for Hget {
     }
 }
 
-impl CommandService  for Hgetall {
+impl CommandService for Hgetall {
     fn execute(self, store: &impl Storage) -> CommandResponse {
         match store.get_all(&self.table) {
             Ok(v) => v.into(),
@@ -22,14 +22,12 @@ impl CommandService  for Hgetall {
 impl CommandService for Hset {
     fn execute(self, store: &impl Storage) -> CommandResponse {
         match self.pair {
-            Some(v) => {
-                match store.set(&self.table, v.key, v.value.unwrap_or_default()) {
-                    Ok(Some(v)) => v.into(),
-                    Ok(None) => Value::default().into(),
-                    Err(err) => err.into(),
-                }
+            Some(v) => match store.set(&self.table, v.key, v.value.unwrap_or_default()) {
+                Ok(Some(v)) => v.into(),
+                Ok(None) => Value::default().into(),
+                Err(err) => err.into(),
             },
-            None => KvError::InvalidCommand(format!("{:?}", self)).into()
+            None => KvError::InvalidCommand(format!("{:?}", self)).into(),
         }
     }
 }
