@@ -28,7 +28,7 @@ where
 
     pub async fn process(mut self) -> Result<(), KvError> {
         while let Ok(cmd) = self.recv().await {
-            info!("Got command: {:?}", cmd);
+            println!("Got command: {:?}", cmd);
             let res = self.service.execute(cmd);
             self.send(res).await?;
         }

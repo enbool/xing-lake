@@ -9,7 +9,7 @@ use tracing::info;
 async fn main() -> Result<()> {
     tracing_subscriber::fmt::init();
 
-    let addr = "127.0.0.1:8080";
+    let addr = "127.0.0.1:9527";
     let stream = TcpStream::connect(addr).await?;
 
     let mut client =
@@ -20,7 +20,7 @@ async fn main() -> Result<()> {
     client.send(cmd).await?;
 
     if let Some(Ok(data)) = client.next().await {
-        info!("Got response {:?}", data);
+        println!("Got response {:?}", data);
     }
 
     Ok(())
