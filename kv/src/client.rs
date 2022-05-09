@@ -1,8 +1,7 @@
-
 use anyhow::Result;
+use kv::{CommandRequest, ProstClientStream};
 use tokio::net::TcpStream;
 use tracing::info;
-use kv::{CommandRequest, ProstClientStream};
 
 #[tokio::main]
 async fn main() -> Result<()> {

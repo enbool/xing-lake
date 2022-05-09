@@ -30,7 +30,7 @@ mod test;
 
 pub use error::KvError;
 pub use network::frame::*;
+pub use network::*;
 pub use pb::abi::*;
 pub use service::*;
 pub use storage::*;
-pub use network::*;

@@ -1,8 +1,7 @@
-
 use anyhow::Result;
+use kv::{MemTable, ProstServerStream, Service};
 use tokio::net::TcpListener;
 use tracing::info;
-use kv::{MemTable, ProstServerStream, Service};
 
 #[tokio::main]
 async fn main() -> Result<()> {
