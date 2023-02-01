@@ -37,6 +37,7 @@ mod ch24;
 mod ch33;
 mod ch35;
 mod file;
+mod multi_thread;
 
 
 use std::{mem::size_of_val};
