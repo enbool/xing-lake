@@ -8,6 +8,7 @@
 
 // Fallen short of expectations:
 // 不顾一切的割肉
+// 跌破支撑位后割肉
 
 public static void main(String[] args) {
     
