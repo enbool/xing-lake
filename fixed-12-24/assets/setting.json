@@ -1,0 +1,26 @@
+{
+    "host": "127.0.0.1",
+    "port":"9003",
+    "workerpoolsize": 500,
+    "maxworkertasklen": 1000,
+    "redisConfig": {
+        "Host": "172.27.85.30",
+        "Port": 6379,
+        "Db": 1,
+        
+        "User": "",
+        "Pass": "",
+        "MaxIdle": 10,
+        "MaxActive": 20,
+        "IdleTimeout": 5000,
+        "MaxConnLifetime": 30,
+        "ConnectTimeout": 0
+    },
+    "enable_long_linker": false,
+    "newsSynWxId":true,
+    "rocketMq": false,
+    "rocketAccessKey":"",
+    "rocketSecretKey":"",
+    "rabbitMq": false,
+    "topic": "wx_sync_msg_topic"
+}
