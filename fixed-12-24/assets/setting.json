@@ -4,7 +4,7 @@
     "workerpoolsize": 500,
     "maxworkertasklen": 1000,
     "redisConfig": {
-        "Host": "172.27.85.30",
+        "Host": "127.0.0.1",
         "Port": 6379,
         "Db": 1,
         
