@@ -1,8 +1,0 @@
-D:\workspace_x\2xxx消息\input - 副本.docx
-[其他2, 骐达, 52.3%; Prod2, Production , 20%;]
-[其他3, 骐达, 52.3%; Prod3, Production , 20%;]
-
-D:\workspace_x\2xxx消息\input.docx
-[其他, 骐达, 52.3%; prod, Production , 20%;]
-
-we active this repository
